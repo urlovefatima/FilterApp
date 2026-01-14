@@ -55,10 +55,20 @@ function getScale(leftEye, rightEye) {
   const dy = rightEye.y - leftEye.y;
   return Math.sqrt(dx * dx + dy * dy);
 }
+function getForehead(face) {
+  const pt = face[10];
+  return { x: pt.x * canvas.width, y: pt.y * canvas.height };
+}
+
 
 // FILTRE
 const glasses = new Image();
 glasses.src = "filters/glasses.png";
+
+const flowers = new Image();
+flowers.src = "filters/flowers.png";
+
+let currentFilter = "glasses";
 
 // DRAW
 function onResults(results) {
@@ -68,19 +78,32 @@ function onResults(results) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-  if (results.multiFaceLandmarks && glasses.complete) {
-    const face = results.multiFaceLandmarks[0];
-    const { leftEye, rightEye } = getEyePoints(face);
-    const angle = getRotation(leftEye, rightEye);
-    const scale = getScale(leftEye, rightEye);
+  if (results.multiFaceLandmarks) {
+  const face = results.multiFaceLandmarks[0];
+  const { leftEye, rightEye } = getEyePoints(face);
+  const angle = getRotation(leftEye, rightEye);
+  const scale = getScale(leftEye, rightEye);
 
+  if (currentFilter === "glasses") {
     const cx = (leftEye.x + rightEye.x) / 2;
     const cy = (leftEye.y + rightEye.y) / 2;
 
     ctx.save();
     ctx.translate(cx, cy);
     ctx.rotate(angle);
-    ctx.drawImage(glasses, -scale / 1.2, -scale / 3, scale * 1.7, scale / 1.2);
+    ctx.drawImage(glasses, -scale/1.2, -scale/3, scale*1.7, scale/1.2);
     ctx.restore();
   }
+
+  if (currentFilter === "flowers") {
+    const forehead = getForehead(face);
+
+    ctx.save();
+    ctx.translate(forehead.x, forehead.y - scale/1.5);
+    ctx.rotate(angle);
+    ctx.drawImage(flowers, -scale, -scale/1.5, scale*2, scale);
+    ctx.restore();
+  }
+}
+
 }
