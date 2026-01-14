@@ -66,7 +66,7 @@ const glasses = new Image();
 glasses.src = "filters/glasses.png";
 
 const flowers = new Image();
-flowers.src = "filters/flowers.png";
+flowers.src = "filters/fleurs.png";
 
 let currentFilter = "glasses";
 
